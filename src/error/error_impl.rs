@@ -1,7 +1,7 @@
 use core::any::TypeId;
 
-use Fail;
-use backtrace::Backtrace;
+use crate::Fail;
+use crate::backtrace::Backtrace;
 
 pub(crate) struct ErrorImpl {
     inner: Box<Inner<dyn Fail>>,
@@ -41,7 +41,7 @@ impl ErrorImpl {
         if self.failure().__private_get_type_id__() == TypeId::of::<T>() {
             let ErrorImpl { inner } = self;
             let casted = unsafe { Box::from_raw(Box::into_raw(inner) as *mut Inner<T>) };
-            let Inner { backtrace:_, failure } = *casted;
+            let Inner { failure, .. } = *casted;
             Ok(failure)
         } else {
             Err(self)

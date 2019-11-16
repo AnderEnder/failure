@@ -10,7 +10,7 @@ pub struct Compat<E> {
 }
 
 impl<E: Display> Display for Compat<E> {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         Display::fmt(&self.error, f)
     }
 }
@@ -31,7 +31,7 @@ with_std! {
     use std::fmt::Debug;
     use std::error::Error as StdError;
 
-    use Error;
+    use crate::Error;
 
     impl<E: Display + Debug> StdError for Compat<E> {
         fn description(&self) -> &'static str {

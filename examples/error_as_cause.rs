@@ -1,6 +1,3 @@
-#[macro_use]
-extern crate failure;
-
 use failure::{err_msg, Error, Fail};
 
 #[derive(Debug, Fail)]

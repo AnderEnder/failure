@@ -1,6 +1,3 @@
-#[macro_use]
-extern crate failure;
-
 use failure::Fail;
 
 fn return_failure() -> Result<(), failure::Error> {

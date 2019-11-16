@@ -142,7 +142,7 @@ with_backtrace! {
     }
 
     impl Debug for Backtrace {
-        fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
             if let Some(bt) = self.internal.as_backtrace() {
                 Debug::fmt(bt, f)
             } else { Ok(()) }
@@ -150,7 +150,7 @@ with_backtrace! {
     }
 
     impl Display for Backtrace {
-        fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
             if let Some(bt) = self.internal.as_backtrace() {
                 Debug::fmt(bt, f)
             } else { Ok(()) }

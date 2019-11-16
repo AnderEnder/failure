@@ -1,7 +1,3 @@
-extern crate failure;
-#[macro_use]
-extern crate failure_derive;
-
 use std::fmt;
 use std::io;
 

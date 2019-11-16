@@ -8,6 +8,7 @@ homepage = "https://rust-lang-nursery.github.io/failure/"
 documentation = "https://docs.rs/failure"
 version = "0.1.6"
 build = "build.rs"
+edition = "2018"
 
 [dependencies]
 quote = "1"

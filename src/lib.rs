@@ -25,7 +25,7 @@
 #![deny(warnings)]
 #![cfg_attr(feature = "small-error", feature(extern_types, allocator_api))]
 
-macro_rules! with_std { ($($i:item)*) => ($(#[cfg(feature = "std")]$i)*) }
+macro_rules! with_std { ($($i:item)*) => ($($i)*) }
 macro_rules! without_std { ($($i:item)*) => ($(#[cfg(not(feature = "std"))]$i)*) }
 
 // Re-export libcore using an alias so that the macros can work without
@@ -45,23 +45,19 @@ use core::any::TypeId;
 use core::fmt::{Debug, Display};
 
 pub use as_fail::AsFail;
-pub use backtrace::Backtrace;
+pub use crate::backtrace::Backtrace;
 pub use compat::Compat;
 pub use context::Context;
 pub use result_ext::ResultExt;
 
 #[cfg(feature = "failure_derive")]
 #[allow(unused_imports)]
-#[macro_use]
-extern crate failure_derive;
 
 #[cfg(feature = "failure_derive")]
 #[doc(hidden)]
 pub use failure_derive::*;
 
 with_std! {
-    extern crate core;
-
     mod sync_failure;
     pub use sync_failure::SyncFailure;
 
@@ -174,7 +170,7 @@ pub trait Fail: Display + Debug + Send + Sync + 'static {
 
     #[doc(hidden)]
     #[deprecated(since = "0.1.2", note = "please use the 'iter_chain()' method instead")]
-    fn causes(&self) -> Causes
+    fn causes(&self) -> Causes<'_>
     where
         Self: Sized,
     {
@@ -239,7 +235,7 @@ impl dyn Fail {
     /// of this fail as the first item and the `root_cause` as the final item.
     ///
     /// Use `iter_chain` to also include the fail itself.
-    pub fn iter_causes(&self) -> Causes {
+    pub fn iter_causes(&self) -> Causes<'_> {
         Causes { fail: self.cause() }
     }
 
@@ -249,7 +245,7 @@ impl dyn Fail {
     /// This means that the chain also includes the fail itself which
     /// means that it does *not* start with `cause`.  To skip the outermost
     /// fail use `iter_causes` instead.
-    pub fn iter_chain(&self) -> Causes {
+    pub fn iter_chain(&self) -> Causes<'_> {
         Causes { fail: Some(self) }
     }
 
@@ -264,7 +260,7 @@ impl dyn Fail {
 
     /// Deprecated alias to `iter_chain`.
     #[deprecated(since = "0.1.2", note = "please use the 'iter_chain()' method instead")]
-    pub fn causes(&self) -> Causes {
+    pub fn causes(&self) -> Causes<'_> {
         Causes { fail: Some(self) }
     }
 }

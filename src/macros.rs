@@ -51,8 +51,7 @@ macro_rules! _failure__stringify {
 /// Constructs an `Error` using the standard string interpolation syntax.
 ///
 /// ```rust
-/// #[macro_use] extern crate failure;
-///
+/// use failure::format_err;
 /// fn main() {
 ///     let code = 101;
 ///     let err = format_err!("Error code: {}", code);

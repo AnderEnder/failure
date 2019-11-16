@@ -1,7 +1,5 @@
-#[macro_use]
-extern crate failure;
-
 use failure::Error;
+use failure::{bail, ensure};
 
 fn bailer() -> Result<(), Error> {
     // bail!("ruh roh");

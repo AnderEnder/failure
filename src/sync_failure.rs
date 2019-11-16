@@ -1,4 +1,4 @@
-use Fail;
+use crate::Fail;
 use std::error::Error;
 use std::fmt::{self, Debug, Display};
 use std::sync::Mutex;
@@ -80,7 +80,7 @@ impl<T> Display for SyncFailure<T>
 where
     T: Display,
 {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         self.inner.lock().unwrap().fmt(f)
     }
 }
@@ -89,7 +89,7 @@ impl<T> Debug for SyncFailure<T>
 where
     T: Debug,
 {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         (*self.inner.lock().unwrap()).fmt(f)
     }
 }

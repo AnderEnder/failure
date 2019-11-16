@@ -1,12 +1,12 @@
 use core::fmt::{self, Display, Debug};
 
-use {Causes, Fail};
-use backtrace::Backtrace;
-use context::Context;
-use compat::Compat;
+use crate::{Causes, Fail};
+use crate::backtrace::Backtrace;
+use crate::context::Context;
+use crate::compat::Compat;
 
 #[cfg(feature = "std")]
-use box_std::BoxStd;
+use crate::box_std::BoxStd;
 
 #[cfg_attr(feature = "small-error", path = "./error_impl_small.rs")]
 mod error_impl;
@@ -141,7 +141,7 @@ impl Error {
     /// of the fail as the first item and the `root_cause` as the final item.
     ///
     /// Use `iter_chain` to also include the fail of this error itself.
-    pub fn iter_causes(&self) -> Causes {
+    pub fn iter_causes(&self) -> Causes<'_> {
         self.as_fail().iter_causes()
     }
 
@@ -151,7 +151,7 @@ impl Error {
     /// This means that the chain also includes the fail itself which
     /// means that it does *not* start with `cause`.  To skip the outermost
     /// fail use `iter_causes` instead.
-    pub fn iter_chain(&self) -> Causes {
+    pub fn iter_chain(&self) -> Causes<'_> {
         self.as_fail().iter_chain()
     }
 
@@ -174,24 +174,24 @@ impl Error {
     /// Deprecated alias to `find_root_cause`.
     #[deprecated(since = "0.1.2", note = "please use the 'find_root_cause()' method instead")]
     pub fn root_cause(&self) -> &dyn Fail {
-        ::find_root_cause(self.as_fail())
+        crate::find_root_cause(self.as_fail())
     }
 
     /// Deprecated alias to `iter_causes`.
     #[deprecated(since = "0.1.2", note = "please use the 'iter_chain()' method instead")]
-    pub fn causes(&self) -> Causes {
+    pub fn causes(&self) -> Causes<'_> {
         Causes { fail: Some(self.as_fail()) }
     }
 }
 
 impl Display for Error {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         Display::fmt(&self.imp.failure(), f)
     }
 }
 
 impl Debug for Error {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let backtrace = self.imp.backtrace();
         if backtrace.is_none() {
             Debug::fmt(&self.imp.failure(), f)
@@ -224,11 +224,10 @@ mod test {
         let io_error: io::Error = io::Error::new(io::ErrorKind::NotFound, "test");
         let error: Error = io::Error::new(io::ErrorKind::NotFound, "test").into();
         assert!(error.downcast_ref::<io::Error>().is_some());
-        let _: ::Backtrace = *error.backtrace();
+        let _: crate::Backtrace = *error.backtrace();
         assert_eq!(format!("{:?}", io_error), format!("{:?}", error));
         assert_eq!(format!("{}", io_error), format!("{}", error));
         drop(error);
-        assert!(true);
     }
 
     #[test]

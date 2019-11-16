@@ -1,4 +1,4 @@
-use Fail;
+use crate::Fail;
 
 /// The `AsFail` trait
 ///
@@ -27,7 +27,7 @@ impl AsFail for dyn Fail {
 }
 
 with_std! {
-    use error::Error;
+    use crate::error::Error;
 
     impl AsFail for Error {
         fn as_fail(&self) -> &dyn Fail {

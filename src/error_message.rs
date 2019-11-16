@@ -1,7 +1,7 @@
 use core::fmt::{self, Display, Debug};
 
-use Fail;
-use Error;
+use crate::Fail;
+use crate::Error;
 
 /// Constructs a `Fail` type from a string.
 ///
@@ -26,7 +26,7 @@ impl<D: Display + Debug + Sync + Send + 'static> Fail for ErrorMessage<D> {
 }
 
 impl<D: Display + Debug + Sync + Send + 'static> Display for ErrorMessage<D> {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         Display::fmt(&self.msg, f)
     }
 }

@@ -1,6 +1,4 @@
-extern crate failure;
-#[macro_use]
-extern crate failure_derive;
+use failure::Fail;
 
 #[derive(Fail, Debug)]
 #[fail(display = "An error has occurred.")]

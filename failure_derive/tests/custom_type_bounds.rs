@@ -1,8 +1,4 @@
-#[macro_use]
-extern crate failure;
-
 use std::fmt::Debug;
-
 use failure::Fail;
 
 #[derive(Debug, Fail)]

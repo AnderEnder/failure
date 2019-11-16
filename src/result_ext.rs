@@ -1,6 +1,6 @@
 use core::fmt::Display;
 
-use {Compat, Context, Fail};
+use crate::{Compat, Context, Fail};
 
 /// Extension methods for `Result`.
 pub trait ResultExt<T, E> {
@@ -20,9 +20,7 @@ pub trait ResultExt<T, E> {
     /// use std::error::Error;
     /// # use std::fmt;
     /// #
-    /// # extern crate failure;
-    /// #
-    /// # use tests::failure::ResultExt;
+    /// # use failure::ResultExt;
     /// #
     /// # #[derive(Debug)]
     /// struct CustomError;
@@ -65,12 +63,6 @@ pub trait ResultExt<T, E> {
     /// # Examples
     ///
     /// ```
-    /// # #[cfg(all(feature = "std", feature = "derive"))]
-    /// # #[macro_use] extern crate failure;
-    /// #
-    /// # #[cfg(all(feature = "std", feature = "derive"))]
-    /// # #[macro_use] extern crate failure_derive;
-    /// #
     /// # fn main() {
     /// #    tests::run_test();
     /// # }
@@ -79,7 +71,7 @@ pub trait ResultExt<T, E> {
     /// #
     /// # #[cfg(all(feature = "std", feature = "derive"))] mod tests {
     /// #
-    /// # use failure::{self, ResultExt};
+    /// # use failure::{self, ResultExt, Fail};
     /// #
     /// #[derive(Fail, Debug)]
     /// #[fail(display = "")]
@@ -108,12 +100,6 @@ pub trait ResultExt<T, E> {
     /// # Examples
     ///
     /// ```
-    /// # #[cfg(all(feature = "std", feature = "derive"))]
-    /// # #[macro_use] extern crate failure;
-    /// #
-    /// # #[cfg(all(feature = "std", feature = "derive"))]
-    /// # #[macro_use] extern crate failure_derive;
-    /// #
     /// # fn main() {
     /// #    tests::run_test();
     /// # }
@@ -122,7 +108,7 @@ pub trait ResultExt<T, E> {
     /// #
     /// # #[cfg(all(feature = "std", feature = "derive"))] mod tests {
     /// #
-    /// # use failure::{self, ResultExt};
+    /// # use failure::{self, ResultExt, Fail};
     /// #
     /// #[derive(Fail, Debug)]
     /// #[fail(display = "My custom error message")]
@@ -177,7 +163,7 @@ where
 }
 
 with_std! {
-    use Error;
+    use crate::Error;
 
     impl<T> ResultExt<T, Error> for Result<T, Error> {
         fn compat(self) -> Result<T, Compat<Error>> {

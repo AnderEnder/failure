@@ -4,7 +4,7 @@ use std::ffi::OsString;
 use std::fmt;
 #[allow(deprecated)] // to allow for older Rust versions (<1.24)
 use std::sync::atomic::{AtomicUsize, ATOMIC_USIZE_INIT, Ordering};
-use std::sync::Mutex;
+use std::sync::atomic::AtomicBool;
 
 pub use super::backtrace::Backtrace;
 
@@ -16,7 +16,7 @@ pub(super) struct InternalBacktrace {
 }
 
 struct MaybeResolved {
-    resolved: Mutex<bool>,
+    resolved: AtomicBool,
     backtrace: UnsafeCell<Backtrace>,
 }
 
@@ -30,7 +30,7 @@ impl InternalBacktrace {
 
         match ENABLED.load(Ordering::SeqCst) {
             0 => {
-                let enabled = is_backtrace_enabled(|var| env::var_os(var));
+                let enabled = is_backtrace_enabled(env::var_os);
                 ENABLED.store(enabled as usize + 1, Ordering::SeqCst);
                 if !enabled {
                     return InternalBacktrace { backtrace: None }
@@ -42,7 +42,7 @@ impl InternalBacktrace {
 
         InternalBacktrace {
             backtrace: Some(MaybeResolved {
-                resolved: Mutex::new(false),
+                resolved: AtomicBool::new(false),
                 backtrace: UnsafeCell::new(Backtrace::new_unresolved()),
             }),
         }
@@ -57,11 +57,11 @@ impl InternalBacktrace {
             Some(ref bt) => bt,
             None => return None,
         };
-        let mut resolved = bt.resolved.lock().unwrap();
+        let resolved = bt.resolved.load(Ordering::Relaxed);
         unsafe {
-            if !*resolved {
+            if !resolved {
                 (*bt.backtrace.get()).resolve();
-                *resolved = true;
+                bt.resolved.store(true, Ordering::Relaxed);
             }
             Some(&*bt.backtrace.get())
         }
@@ -73,14 +73,14 @@ impl InternalBacktrace {
 }
 
 impl fmt::Debug for InternalBacktrace {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         f.debug_struct("InternalBacktrace")
             .field("backtrace", &self.as_backtrace())
             .finish()
     }
 }
 
-fn is_backtrace_enabled<F: Fn(&str) -> Option<OsString>>(get_var: F) -> bool {
+fn is_backtrace_enabled<'a, F: Fn(&'a str) -> Option<OsString>>(get_var: F) -> bool {
     match get_var(FAILURE_BACKTRACE) {
         Some(ref val) if val != "0" => true,
         Some(ref val) if val == "0" => false,

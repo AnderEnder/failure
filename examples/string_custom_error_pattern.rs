@@ -1,7 +1,3 @@
-//! This example show the pattern "Strings and custom fail type" described in the book
-extern crate core;
-extern crate failure;
-
 use core::fmt::{self, Display};
 use failure::{Backtrace, Context, Fail, ResultExt};
 
@@ -35,7 +31,7 @@ pub struct MyError {
 }
 
 impl Fail for MyError {
-    fn cause(&self) -> Option<&Fail> {
+    fn cause(&self) -> Option<&dyn Fail> {
         self.inner.cause()
     }
 
@@ -45,7 +41,7 @@ impl Fail for MyError {
 }
 
 impl Display for MyError {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         Display::fmt(&self.inner, f)
     }
 }

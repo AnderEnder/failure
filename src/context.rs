@@ -1,6 +1,6 @@
 use core::fmt::{self, Debug, Display};
 
-use Fail;
+use crate::Fail;
 
 without_std! {
     /// An error with context around it.
@@ -63,7 +63,7 @@ without_std! {
 }
 
 with_std! {
-    use {Error, Backtrace};
+    use crate::{Error, Backtrace};
 
     /// An error with context around it.
     ///
@@ -122,13 +122,13 @@ with_std! {
     }
 
     impl<D: Display + Send + Sync + 'static> Debug for Context<D> {
-        fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
             write!(f, "{:?}\n\n{}", self.failure, self.context)
         }
     }
 
     impl<D: Display + Send + Sync + 'static> Display for Context<D> {
-        fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
             write!(f, "{}", self.context)
         }
     }
@@ -155,7 +155,7 @@ with_std! {
     }
 
     impl Debug for Either<Backtrace, Error> {
-        fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
             match *self {
                 Either::This(ref backtrace) => write!(f, "{:?}", backtrace),
                 Either::That(ref error)     => write!(f, "{:?}", error),

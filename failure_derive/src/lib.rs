@@ -1,14 +1,8 @@
-extern crate proc_macro2;
-extern crate syn;
-
-#[macro_use]
-extern crate synstructure;
-#[macro_use]
-extern crate quote;
-
 use proc_macro2::{TokenStream, Span};
 use syn::LitStr;
 use syn::spanned::Spanned;
+use quote::{quote_spanned, quote};
+use synstructure::decl_derive;
 
 #[derive(Debug)]
 struct Error(TokenStream);
@@ -142,8 +136,8 @@ fn display_body(s: &synstructure::Structure) -> Result<Option<quote::__rt::Token
                 Ok(quote!(#bi))
             }
             syn::NestedMeta::Meta(syn::Meta::Path(ref path)) => {
-                let id_s = path.get_ident().map(syn::Ident::to_string).unwrap_or("".to_string());
-                if id_s.starts_with("_") {
+                let id_s = path.get_ident().map(syn::Ident::to_string).unwrap_or_default();
+                if id_s.starts_with('_') {
                     if let Ok(idx) = id_s[1..].parse::<usize>() {
                         let bi = match v.bindings().get(idx) {
                             Some(bi) => bi,
@@ -171,7 +165,7 @@ fn display_body(s: &synstructure::Structure) -> Result<Option<quote::__rt::Token
                         return Ok(quote!(#bi));
                     }
                 }
-                return Err(Error::new(
+                Err(Error::new(
                     arg.span(),
                     &format!(
                         "Couldn't find field `{:?}` in `{}::{}`",
@@ -179,13 +173,13 @@ fn display_body(s: &synstructure::Structure) -> Result<Option<quote::__rt::Token
                         s.ast().ident,
                         v.ast().ident
                     )
-                ));
+                ))
             }
             ref arg => {
-                return Err(Error::new(
+                Err(Error::new(
                     arg.span(),
                     "Invalid argument to fail attribute!"
-                ));
+                ))
             },
         });
         let args = args.collect::<Result<Vec<_>, _>>()?;
@@ -206,15 +200,13 @@ fn find_error_msg(attrs: &[syn::Attribute]) -> Result<Option<syn::MetaList>, Err
                         meta.span(),
                         "Cannot have two display attributes"
                     ));
+                } else if let syn::Meta::List(list) = meta {
+                    error_msg = Some(list);
                 } else {
-                    if let syn::Meta::List(list) = meta {
-                        error_msg = Some(list);
-                    } else {
-                        return Err(Error::new(
-                            meta.span(),
-                            "fail attribute must take a list in parentheses"
-                        ));
-                    }
+                    return Err(Error::new(
+                        meta.span(),
+                        "fail attribute must take a list in parentheses"
+                    ));
                 }
             }
         }
@@ -249,7 +241,7 @@ fn is_cause(bi: &&synstructure::BindingInfo) -> bool {
             if meta.path().is_ident("fail") {
                 if let syn::Meta::List(ref list) = meta {
                     if let Some(ref pair) = list.nested.first() {
-                        if let &&syn::NestedMeta::Meta(syn::Meta::Path(ref path)) = pair {
+                        if let syn::NestedMeta::Meta(syn::Meta::Path(ref path)) = pair {
                             if path.is_ident("cause") {
                                 if found_cause {
                                     panic!("Cannot have two `cause` attributes");

@@ -1,5 +1,4 @@
-#[macro_use]
-extern crate failure;
+use failure::{bail, ensure, format_err};
 
 // NOTE:
 //
